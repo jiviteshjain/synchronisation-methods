@@ -16,4 +16,22 @@
 #include <unistd.h>
 #include <wait.h>
 
+typedef struct {
+    int start;
+    int end;
+    int* arr;
+} args;
+
+int get_pivot_index(int start, int end);
+
+void swap(int arr[], int i, int j);
+
+void normal_quick_sort(int arr[], int start, int end);
+
+void multiproc_quick_sort(int arr[], int start, int end);
+
+void* multithread_quick_sort(void* inp);
+
+int main(void);
+
 #endif

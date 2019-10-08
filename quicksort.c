@@ -1,50 +1,93 @@
 #include "main.h"
 
-int get_pivot_index(int start, int end) {
-    int n = end - start + 1;
-    int ans = rand();
-    return  start + ans % n;
-}
+int main(void) {
+    int n;
+    scanf("%d", &n);
 
-void swap(int arr[], int i, int j) {
-    int temp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = temp;
-}
-
-void normal_quick_sort(int arr[], int start, int end) {
-    if (start >= end)
-        return;
-
-    if (end - start + 1 <= 5) {
-        // Insertion sort
-        for (int i = start + 1; i <= end; i++) {
-            int temp = arr[i];
-            int j = i - 1;
-            while (j >= 0 && arr[j] > temp) {
-                arr[j + 1] = arr[j];
-                j--;
-            }
-            arr[j + 1] = temp;
-        }
-        return;
+    int* arr = (int*)malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
     }
 
-    int pivot = get_pivot_index(start, end);
-    swap(arr, pivot, end);
-    pivot = end;
+    struct timespec t;
+    long double t_start, t_end;
 
-    int i = start - 1;
-    for (int j = start; j < end; j++) {
-        if (arr[j] < arr[pivot]) {
-            i++;
-            swap(arr, i, j);
-        }
+    // NORMAL QUICKSORT
+
+    // Copy Array
+    int* a = (int*)malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) {
+        a[i] = arr[i];
     }
-    swap(arr, i + 1, end);
-    pivot = i + 1;
-    // Partitioning done
+    printf("Running normal quicksort.\n");
 
-    normal_quick_sort(arr, start, pivot - 1);
-    normal_quick_sort(arr, pivot + 1, end);
+    // Start Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_start = t.tv_sec + t.tv_nsec / (1e9);
+
+    // Run Quicksort
+    normal_quick_sort(a, 0, n - 1);
+
+    // End Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_end = t.tv_sec + t.tv_nsec / (1e9);
+    
+    // Print Array
+    for (int i = 0; i < n; i++) {
+        printf("%d ", a[i]);
+    }
+    printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
+
+    // MULTIPROCESS QUICKSORT
+
+    // Copy Array
+    key_t mem_key = IPC_PRIVATE;
+    int shm_id = shmget(mem_key, sizeof(int) * n, IPC_CREAT | 0666);
+    int* b =  (int*)shmat(shm_id, NULL, 0);
+    
+    for (int i = 0; i < n; i++) {
+        b[i] = arr[i];
+    }
+    printf("Running multiprocessing quicksort.\n");
+
+    // Start Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_start = t.tv_sec + t.tv_nsec / (1e9);
+
+    // Run Quicksort
+    multiproc_quick_sort(b, 0, n - 1);
+
+    // End Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_end = t.tv_sec + t.tv_nsec / (1e9);
+
+    // Print Array
+    for (int i = 0; i < n; i++) {
+        printf("%d ", b[i]);
+    }
+    printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
+
+    // MULTITHREADED QUICKSORT
+
+    printf("Running multithreaded quicksort.\n");
+    // Start Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_start = t.tv_sec + t.tv_nsec / (1e9);
+
+    // Run Quicksort
+    args input;
+    input.start = 0;
+    input.end = n - 1;
+    input.arr = arr;
+    multithread_quick_sort((void*)&input);
+
+    // End Time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+    t_end = t.tv_sec + t.tv_nsec / (1e9);
+
+    // Print Array
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
 }

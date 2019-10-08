@@ -1,17 +1,5 @@
 #include "main.h"
 
-int get_pivot_index(int start, int end) {
-    int n = end - start + 1;
-    int ans = rand();
-    return start + (ans % n);
-}
-
-void swap(int arr[], int i, int j) {
-    int temp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = temp;
-}
-
 void multiproc_quick_sort(int arr[], int start, int end) {
     if (start >= end)
         return;
@@ -72,19 +60,5 @@ void multiproc_quick_sort(int arr[], int start, int end) {
             waitpid(left_pid, &w_st_left, 0);
             waitpid(right_pid, &w_st_right, 0);
         }
-    }
-}
-
-int main(void) {
-    key_t mem_key = IPC_PRIVATE;
-    int shm_id = shmget(mem_key, sizeof(int) * 15, IPC_CREAT | 0666);
-    int* arr =  (int*)shmat(shm_id, NULL, 0);
-
-    for (int i = 0; i < 15; i++) {
-        scanf("%d", &arr[i]);
-    }
-    multiproc_quick_sort(arr, 0, 14);
-    for (int i = 0; i < 15; i++) {
-        printf("%d ", arr[i]);
     }
 }
