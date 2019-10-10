@@ -1,7 +1,7 @@
 CFLAGS = -g -Wall -pthread
 
-all: sim.o cab.o rider.o
-	gcc $(CFLAGS) sim.o cab.o rider.o
+all: sim.o cab.o rider.o server.o
+	gcc $(CFLAGS) sim.o cab.o rider.o server.o
 
 clean:
 	rm -f *.o a.out

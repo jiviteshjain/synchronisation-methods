@@ -24,7 +24,7 @@ void rider_init(Rider* r, int i) {
     pthread_mutex_init(&(r->protect), NULL);
 
     pthread_cond_init(&(r->cv_cab), NULL);
-    pthread_cond_init(&(r->cv_server), NULL);
+    // pthread_cond_init(&(r->cv_server), NULL);
 
     sem_init(&(r->riding), 0, 0);
     sem_init(&(r->paying), 0, 0);
@@ -36,19 +36,27 @@ void* rider_run(void* args) {
 
     pthread_mutex_t* protect_ptr = &(self->protect);
     pthread_cond_t* cv_cab_ptr = &(self->cv_cab);
-    pthread_cond_t* cv_server_ptr = &(self->cv_server);
+    // pthread_cond_t* cv_server_ptr = &(self->cv_server);
 
     int premature_time = rand() % 10;
     sleep(premature_time);
 
+    if (self->type == RIDER_TYPE_PREMIER) {
+        printf(ANSI_RED "RIDER %d WAITING FOR PREMIER\n" ANSI_DEFAULT, self->id);
+    } else {
+        printf(ANSI_RED "RIDER %d WAITING FOR POOL\n" ANSI_DEFAULT, self->id);
+    }
+
     pthread_mutex_lock(protect_ptr);
-    printf("RIDER %d HAS TYPE: %d\n", self->id, self->type);
-    printf("RIDER %d ARRIVED AND WAITING\n", self->id);
+    
     time_t wait_start_time = time(NULL);
     self->state = RIDER_ST_READY;
 
     while (true) {
         if (time(NULL) - wait_start_time > self->wait_time) {
+            self->state = RIDER_ST_DONE;
+            printf(ANSI_RED_BOLD "RIDER %d TIMED OUT\n" ANSI_DEFAULT, self->id);
+            pthread_mutex_unlock(protect_ptr);
             return NULL;
         }
 
@@ -61,17 +69,37 @@ void* rider_run(void* args) {
     }
 
     pthread_mutex_unlock(protect_ptr);
-    printf("RIDER %d GOT CAB %d\n", self->id, self->cab->id);
+    
     // NOW STATE IS RIDING
+    if (self->type == RIDER_TYPE_PREMIER) {
+        printf(ANSI_YELLOW "RIDER %d RIDING PREMIER IN CAB %d\n" ANSI_DEFAULT, self->id, self->cab->id);
+    } else {
+        if (self->cab->state == CAB_ST_POOL_ONE) {
+            printf(ANSI_YELLOW "RIDER %d RIDING POOL ALONE IN CAB %d\n" ANSI_DEFAULT, self->id, self->cab->id);
+        } else {
+            printf(ANSI_YELLOW "RIDER %d RIDING POOL SHARED WITH RIDER %d IN CAB %d\n" ANSI_DEFAULT, self->id, self->cab->rider_a->id, self->cab->id);
+        }
+    }
 
     sleep(self->ride_time);
     sem_post(&(self->riding)); //TODO: Doing this before changing state - race? - it shouldn't - because servers and cabs don't interact anyways and that cab should be free to pull others and nobody will ever pull this rider now
 
     // NOW STATE IS WAITING FOR PAYMENT
     pthread_mutex_lock(protect_ptr);
-    
     self->state = RIDER_ST_REACHED;
-    printf("RIDER %d DONE\n", self->id);
+    pthread_mutex_unlock(protect_ptr);
+
+    printf(ANSI_CYAN "RIDER %d REACHED AND WAITING FOR PAYMENT\n" ANSI_DEFAULT, self->id);
+
+    sem_post(&sem_rich_riders);
+    // SOME SERVER CATCHES THIS AND MAKES IT'S STATE PAYING
+    sem_wait(&(self->paying));
+    // DONE
+    pthread_mutex_lock(protect_ptr);
+    self->state = RIDER_ST_DONE;
+    pthread_mutex_unlock(protect_ptr);
+
+    // printf(ANSI_GREEN "RIDER %d DONE\n" ANSI_DEFAULT, self->id);
     // while (true) {
     //     if (self->state == RIDER_ST_PAYING) {
     //         break;
@@ -80,14 +108,8 @@ void* rider_run(void* args) {
     //     }
     // }
 
-    pthread_mutex_unlock(protect_ptr);
-
-    sleep(PAYMENT_TIME);
     // sem_post(&(self->paying));
 
-    pthread_mutex_lock(protect_ptr);
-    self->state = RIDER_ST_DONE;
-    pthread_mutex_unlock(protect_ptr);
     
     return NULL;
 }
