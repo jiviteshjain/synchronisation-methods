@@ -49,22 +49,23 @@ void* rider_run(void* args) {
 
     pthread_mutex_lock(protect_ptr);
     
-    time_t wait_start_time = time(NULL);
     self->state = RIDER_ST_READY;
 
+    struct timespec timer;
+    clock_gettime(CLOCK_REALTIME, &timer);
+    timer.tv_sec = timer.tv_sec + self->wait_time;
+
     while (true) {
-        if (time(NULL) - wait_start_time > self->wait_time) {
-            self->state = RIDER_ST_DONE;
-            printf(ANSI_RED_BOLD "RIDER %d TIMED OUT\n" ANSI_DEFAULT, self->id);
-            pthread_mutex_unlock(protect_ptr);
-            return NULL;
-        }
 
         if (self->state != RIDER_ST_READY) {
             break;
         } else {
-            pthread_cond_wait(cv_cab_ptr, protect_ptr);
-            // It will check for wait time in next iteration before accepting ride
+            if (pthread_cond_timedwait(cv_cab_ptr, protect_ptr, &timer) == ETIMEDOUT){
+                self->state = RIDER_ST_DONE;
+                printf(ANSI_RED_BOLD "RIDER %d TIMED OUT\n" ANSI_DEFAULT, self->id);
+                pthread_mutex_unlock(protect_ptr);
+                return NULL;
+            }
         }
     }
 
@@ -87,6 +88,7 @@ void* rider_run(void* args) {
     // NOW STATE IS WAITING FOR PAYMENT
     pthread_mutex_lock(protect_ptr);
     self->state = RIDER_ST_REACHED;
+    self->cab = NULL;
     pthread_mutex_unlock(protect_ptr);
 
     printf(ANSI_CYAN "RIDER %d REACHED AND WAITING FOR PAYMENT\n" ANSI_DEFAULT, self->id);

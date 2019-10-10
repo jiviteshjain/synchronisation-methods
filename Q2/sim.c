@@ -8,7 +8,7 @@ int main(void) {
     pthread_mutex_init(&num_pool_one_protect, NULL);
     num_pool_one = 0;
 
-    pthread_mutex_init(&rider_server_protect, NULL);
+    // pthread_mutex_init(&rider_server_protect, NULL);
     sem_init(&sem_rich_riders, 0, 0);
 
     int num_riders, num_cabs, num_servers;

@@ -1,6 +1,7 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#define _POSIX_C_SOURCE 199309L  //required for clock
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -72,7 +73,7 @@ typedef struct Server {
 pthread_mutex_t num_pool_one_protect;
 int num_pool_one;
 
-pthread_mutex_t rider_server_protect;
+// pthread_mutex_t rider_server_protect;
 sem_t sem_rich_riders;
 
 // COLOURS

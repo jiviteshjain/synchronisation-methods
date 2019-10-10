@@ -74,6 +74,7 @@ void* cab_run(void* args) {
         } else if (self->state == CAB_ST_POOL_ONE) {
             if (sem_trywait(&(self->rider_a->riding)) == 0) {
                 pthread_mutex_lock(&num_pool_one_protect);
+                num_pool_one--;
                 self->state = CAB_ST_EMPTY;
                 self->rider_a = NULL;
                 pthread_mutex_unlock(&num_pool_one_protect);
