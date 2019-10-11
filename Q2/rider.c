@@ -62,6 +62,8 @@ void* rider_run(void* args) {
         } else {
             if (pthread_cond_timedwait(cv_cab_ptr, protect_ptr, &timer) == ETIMEDOUT){
                 self->state = RIDER_ST_DONE;
+                sem_post(&(self->riding));
+                sem_post(&(self->paying)); // TODO: Not needed, because server posts
                 printf(ANSI_RED_BOLD "RIDER %d TIMED OUT\n" ANSI_DEFAULT, self->id);
                 pthread_mutex_unlock(protect_ptr);
                 return NULL;
@@ -78,7 +80,7 @@ void* rider_run(void* args) {
         if (self->cab->state == CAB_ST_POOL_ONE) {
             printf(ANSI_YELLOW "RIDER %d RIDING POOL ALONE IN CAB %d\n" ANSI_DEFAULT, self->id, self->cab->id);
         } else {
-            printf(ANSI_YELLOW "RIDER %d RIDING POOL SHARED WITH RIDER %d IN CAB %d\n" ANSI_DEFAULT, self->id, self->cab->rider_a->id, self->cab->id);
+            printf(ANSI_YELLOW "RIDER %d RIDING POOL SHARED WITH RIDER %d IN CAB %d\n" ANSI_DEFAULT, self->id, (self->cab->rider_a->id != self->id ? self->cab->rider_a->id : self->cab->rider_b->id), self->cab->id);
         }
     }
 

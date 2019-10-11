@@ -31,19 +31,26 @@ void* cab_run(void* args) {
             }
 
             if (rider->type == RIDER_TYPE_PREMIER) {
-                self->state = CAB_ST_PREMIER;
-                self->rider_a = rider;
+                if (pthread_cond_signal(&(rider->cv_cab)) == 0) {
+                
+                    self->state = CAB_ST_PREMIER;
+                    self->rider_a = rider;
 
-                rider->state = RIDER_ST_RIDING;
-                rider->cab = self;
+                    rider->state = RIDER_ST_RIDING;
+                    rider->cab = self;
 
-                pthread_cond_signal(&(rider->cv_cab));
-                pthread_mutex_unlock(&(rider->protect));
+                    pthread_mutex_unlock(&(rider->protect));
 
-                sem_wait(&(rider->riding));
-                self->state = CAB_ST_EMPTY;
-                self->rider_a = NULL;
-                continue;
+                    sem_wait(&(rider->riding));
+
+                    self->state = CAB_ST_EMPTY;
+                    self->rider_a = NULL;
+                    continue;
+                } else {
+                    pthread_mutex_unlock(&(rider->protect));
+                    continue;
+                }
+
 
             } else if (rider->type == RIDER_TYPE_POOL) { // HAS TO BE ONE OF THESE TWO TYPES
                 pthread_mutex_lock(&num_pool_one_protect);
@@ -55,20 +62,23 @@ void* cab_run(void* args) {
 
                     continue;
                 } else {
-                    num_pool_one++;
-                    self->state = CAB_ST_POOL_ONE;
-                    pthread_mutex_unlock(&num_pool_one_protect);
+                    if (pthread_cond_signal(&(rider->cv_cab)) == 0) {
+                        num_pool_one++;
+                        self->state = CAB_ST_POOL_ONE;
+                        pthread_mutex_unlock(&num_pool_one_protect);
 
-                    
-                    self->rider_a = rider;
+                        self->rider_a = rider;
 
-                    rider->state = RIDER_ST_RIDING;
-                    rider->cab = self;
+                        rider->state = RIDER_ST_RIDING;
+                        rider->cab = self;
 
-                    pthread_cond_signal(&(rider->cv_cab));
-                    pthread_mutex_unlock(&(rider->protect));
+                        pthread_mutex_unlock(&(rider->protect));
 
-                    continue;
+                        continue;
+                    } else {
+                        pthread_mutex_unlock(&num_pool_one_protect);
+                        pthread_mutex_unlock(&(rider->protect));
+                    }
                 }
             }
         } else if (self->state == CAB_ST_POOL_ONE) {
@@ -97,20 +107,21 @@ void* cab_run(void* args) {
                 continue;
             }
 
-            pthread_mutex_lock(&num_pool_one_protect);
-            num_pool_one--;
-            self->state = CAB_ST_POOL_TWO;
-            pthread_mutex_unlock(&num_pool_one_protect);
+            if (pthread_cond_signal(&(rider->cv_cab)) == 0) {
+                pthread_mutex_lock(&num_pool_one_protect);
+                num_pool_one--;
+                self->state = CAB_ST_POOL_TWO;
+                pthread_mutex_unlock(&num_pool_one_protect);
 
-            self->rider_b = rider;
+                self->rider_b = rider;
 
-            rider->state = RIDER_ST_RIDING;
-            rider->cab = self;
+                rider->state = RIDER_ST_RIDING;
+                rider->cab = self;
+            }
 
-            pthread_cond_signal(&(rider->cv_cab));
             pthread_mutex_unlock(&(rider->protect));
-
             continue;
+            
         } else if (self->state == CAB_ST_POOL_TWO) {
             if (sem_trywait(&(self->rider_a->riding)) == 0) {
                 pthread_mutex_lock(&num_pool_one_protect);

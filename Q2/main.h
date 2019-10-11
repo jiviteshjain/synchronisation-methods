@@ -13,6 +13,7 @@
 
 #include <time.h>
 #include <wait.h>
+#include <errno.h>
 
 #include <unistd.h>
 #include <fcntl.h>
