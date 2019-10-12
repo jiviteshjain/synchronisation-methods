@@ -26,6 +26,8 @@ void* table_run(void* args) {
         self->state = TABLE_ST_PREPARING;
         pthread_mutex_unlock(&(self->protect));
 
+        printf(ANSI_RED "TABLE %d WAITING FOR BIRYANI\n" ANSI_DEFAULT, self->id);
+
         while(true) {
             // JUST GET A VESSEL
             int i = rand() % self->num_chefs;
@@ -35,6 +37,9 @@ void* table_run(void* args) {
             if (chef->left_vessels > 0) {
                 chef->left_vessels--;
                 self->left_vessel_cap = chef->vessel_cap;
+
+                printf(ANSI_RED "TABLE %d GOT VESSEL OF CAPACITY %d FROM CHEF %d\n" ANSI_DEFAULT, self->id, self->left_vessel_cap, chef->id);
+
                 pthread_cond_signal(&(chef->cv_table));
                 pthread_mutex_unlock(&(chef->protect));
                 break;
@@ -69,8 +74,24 @@ void* table_run(void* args) {
 
             self->state = TABLE_ST_SERVING;
 
+            printf(ANSI_RED "TABLE %d READY TO SERVE %d SLOTS. VESSEL CAPACITY REDUCED TO %d\n", self->id, self->left_slots, self->left_vessel_cap);
+
             ready_to_serve_table(self);
+
+            printf(ANSI_RED "TABLE %d NOW SERVING %d STUDENTS: " ANSI_DEFAULT, self->id, self->total_slots - self->left_slots);
+            for (int k = 0; k < self->total_slots - self->left_slots; k++) {
+                printf(ANSI_RED "%d " ANSI_DEFAULT, self->foodies[k]->id);
+            }
+            printf("\n");
+            
+            sleep(EATING_TIME);
+
+            for (int k = 0; k < self->total_slots - self->left_slots; k++) {
+                printf(ANSI_GREEN "STUDENT %d DONE\n" ANSI_DEFAULT, self->foodies[k]->id);
+            }
         }
+
+        printf(ANSI_RED "TABLE %d SERVED ALL SLOTS\n" ANSI_DEFAULT, self->id);
     }
 }
 
@@ -84,6 +105,7 @@ void ready_to_serve_table(Table* self) {
     }
 
     self->left_slots = 0;
+
     self->state = TABLE_ST_INTERMEDIATE;
     // TODO: print for all students here
     pthread_mutex_unlock(&(self->protect));

@@ -39,19 +39,33 @@ int main(void) {
         pthread_join(foodies[i]->tid, NULL);
     }
 
-    for (int i = 0; i < num_tables; i++) {
-        Table* t = tables[i];
+    // for (int i = 0; i < num_tables; i++) {
+    //     Table* t = tables[i];
         
-        pthread_mutex_lock(&(t->protect));
+    //     pthread_mutex_lock(&(t->protect));
 
-        if (t->state == TABLE_ST_SERVING) {
-            int n = t->total_slots - t->left_slots;
-            for (int j = 0; j < n; j++) {
-                // printf for each foodie in table
-            }
-        }
+    //     if (t->state == TABLE_ST_SERVING) {
+    //         int n = t->total_slots - t->left_slots;
+            
+    //         if (n < 0 || n >= TABLE_SLOTS_LIMIT) {
+    //             pthread_mutex_unlock(&(t->protect));
+    //             continue;
+    //         }
+            
+    //         for (int j = 0; j < n; j++) {
+    //             // printf for each foodie in table
+    //         }
+    //     }
 
-        pthread_mutex_unlock(&(t->protect));
-    }
+    //     pthread_mutex_unlock(&(t->protect));
+    // }
+    
     printf("Simulation Done.\n");
+
+    for (int i = 0; i < num_chefs; i++) {
+        pthread_mutex_destroy(&(chefs[i]->protect));
+    }
+    for (int i = 0; i < num_tables; i++) {
+        pthread_mutex_destroy(&(tables[i]->protect));
+    }
 }

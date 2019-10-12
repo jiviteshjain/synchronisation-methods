@@ -17,6 +17,8 @@ void* foodie_run(void* args) {
     self->arrival_time = FOODIE_DELAY_OFFSET + rand() % FOODIE_DELAY_LIMIT;
     sleep(self->arrival_time);
 
+    printf(ANSI_GREEN "STUDENT %d ARRIVED AND HUNGRY\n" ANSI_DEFAULT, self->id);
+
     wait_for_slot(self);
     student_in_slot(self);
 
@@ -44,7 +46,8 @@ void wait_for_slot(Foodie* self) {
         table->left_slots--;
         int n = table->total_slots - table->left_slots;
         table->foodies[n - 1] = self;
-        // TODO: print slot assigned
+
+        printf(ANSI_GREEN "STUDENT %d ASSIGNED SLOT ON TABLE %d\n", self->id, table->id);
 
         pthread_cond_signal(&(table->cv_foodie));
         pthread_mutex_unlock(&(table->protect));

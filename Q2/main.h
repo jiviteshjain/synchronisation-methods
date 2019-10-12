@@ -50,6 +50,8 @@
 #define TABLE_SLOTS_OFFSET (int)1
 #define TABLE_SLOTS_LIMIT (int)10
 
+#define EATING_TIME (int)2
+
 typedef struct Chef {
     int id;
     pthread_t tid;

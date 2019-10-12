@@ -15,6 +15,8 @@ void* chef_run(void* args) {
     Chef* self = (Chef*)args;
 
     while (true) {
+        printf(ANSI_CYAN "CHEF %d COOKING\n" ANSI_DEFAULT, self->id);
+
         self->vessel_cap = VESSEL_CAPACITY_OFFSET + rand() % VESSEL_CAPACITY_LIMIT;
 
         self->cook_time = COOKING_TIME_OFFSET + rand() % COOKING_TIME_LIMIT;
@@ -24,7 +26,7 @@ void* chef_run(void* args) {
         
         self->left_vessels = CHEF_CAPACITY_OFFSET + rand() % CHEF_CAPACITY_LIMIT;
 
-        printf(ANSI_CYAN "CHEF %d READY WITH %d VESSELS OF BIRYANI\n" ANSI_DEFAULT, self->id, self->left_vessels); // written inside to protect left_vessels
+        printf(ANSI_CYAN "CHEF %d READY WITH %d VESSELS OF BIRYANI WITH A CAPACITY OF %d STUDENTS EACH\n" ANSI_DEFAULT, self->id, self->left_vessels, self->vessel_cap); // written inside to protect left_vessels
 
         // mutex unlocked by cond_wait in biryani ready
 
