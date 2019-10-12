@@ -3,8 +3,10 @@
 int main(void) {
     srand(time(NULL));
     int n;
+    printf("Enter the number of elements: ");
     scanf("%d", &n);
 
+    printf("Enter the elements: ");
     int* arr = (int*)malloc(sizeof(int) * n);
     for (int i = 0; i < n; i++) {
         scanf("%d", &arr[i]);
@@ -12,6 +14,7 @@ int main(void) {
 
     struct timespec t;
     long double t_start, t_end;
+    long double t_normal, t_proc, t_thread;
 
     // NORMAL QUICKSORT
 
@@ -38,6 +41,7 @@ int main(void) {
         printf("%d ", a[i]);
     }
     printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
+    t_normal = t_end - t_start;
 
     // MULTIPROCESS QUICKSORT
 
@@ -67,6 +71,7 @@ int main(void) {
         printf("%d ", b[i]);
     }
     printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
+    t_proc = t_end - t_start;
 
     // MULTITHREADED QUICKSORT
 
@@ -91,4 +96,10 @@ int main(void) {
         printf("%d ", arr[i]);
     }
     printf("\nThis took %Lf seconds.\n\n", t_end - t_start);
+    t_thread = t_end - t_start;
+
+    printf("For n = %d:\n\nNormal quicksort was:\n", n);
+    printf("%Lf times faster than multiprocess quicksort.\n", t_proc / t_normal);
+    printf("%Lf times faster than multithread quicksort.\n\n", t_thread / t_normal);
+    printf("Multithreaded quicksort was %Lf times faster than multiprocess quicksort.\n", t_proc / t_thread);
 }

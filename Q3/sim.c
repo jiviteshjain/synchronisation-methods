@@ -42,4 +42,9 @@ int main(void) {
         }
 
     printf("\nSimulation done.\n");
+    for (int i = 0; i < num_riders; i++) {
+        pthread_mutex_destroy(&(riders[i]->protect));
+    }
+    pthread_mutex_destroy(&num_pool_one_protect);
+    sem_destroy(&sem_rich_riders);
 }
