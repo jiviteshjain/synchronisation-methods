@@ -98,4 +98,6 @@ typedef struct Foodie {
     int num_tables;
 } Foodie;
 
+bool done;
+
 #endif

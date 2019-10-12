@@ -15,6 +15,11 @@ void* chef_run(void* args) {
     Chef* self = (Chef*)args;
 
     while (true) {
+        
+        if (done) {
+            break;
+        }
+
         printf(ANSI_CYAN "CHEF %d COOKING\n" ANSI_DEFAULT, self->id);
 
         self->vessel_cap = VESSEL_CAPACITY_OFFSET + rand() % VESSEL_CAPACITY_LIMIT;
@@ -37,6 +42,10 @@ void* chef_run(void* args) {
 void biryani_ready(Chef* self) {
     
     while (true) {
+        if (done) {
+            break;
+        }
+
         if (self->left_vessels <= 0) {
             break;
         } else{
@@ -47,5 +56,7 @@ void biryani_ready(Chef* self) {
     
     pthread_mutex_unlock(&(self->protect));
     
-    printf(ANSI_CYAN "CHEF %d OUT OF BIRYANI\n" ANSI_DEFAULT, self->id);
+    if (!done) {
+        printf(ANSI_CYAN "CHEF %d OUT OF BIRYANI\n" ANSI_DEFAULT, self->id);
+    }
 }

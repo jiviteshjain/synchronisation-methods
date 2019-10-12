@@ -5,7 +5,8 @@
 
 int main(void) {
     srand(time(0));
-
+    done = false;
+    
     int num_chefs, num_tables, num_foodies;
     printf("Enter number of chefs, tables and students: ");
     scanf("%d %d %d", &num_chefs, &num_tables, &num_foodies);
@@ -39,27 +40,46 @@ int main(void) {
         pthread_join(foodies[i]->tid, NULL);
     }
 
-    // for (int i = 0; i < num_tables; i++) {
-    //     Table* t = tables[i];
-        
-    //     pthread_mutex_lock(&(t->protect));
+    done = true;
+    for (int i = 0; i < num_tables; i++) {
+        Table* t = tables[i];
 
-    //     if (t->state == TABLE_ST_SERVING) {
-    //         int n = t->total_slots - t->left_slots;
-            
-    //         if (n < 0 || n >= TABLE_SLOTS_LIMIT) {
-    //             pthread_mutex_unlock(&(t->protect));
-    //             continue;
-    //         }
-            
-    //         for (int j = 0; j < n; j++) {
-    //             // printf for each foodie in table
-    //         }
-    //     }
+        if (pthread_mutex_trylock(&(t->protect)) == 0) {
 
-    //     pthread_mutex_unlock(&(t->protect));
-    // }
-    
+            pthread_cond_signal(&(t->cv_foodie));
+            pthread_mutex_unlock(&(t->protect));
+            // if (t->state == TABLE_ST_SERVING) {
+            //     int n = t->total_slots - t->left_slots;
+
+            //     if (n < 0 || n >= TABLE_SLOTS_LIMIT) {
+            //         pthread_mutex_unlock(&(t->protect));
+            //         continue;
+            //     }
+                
+            //     for (int j = 0; j < n; j++) {
+            //         // printf for each foodie in table
+            //     }
+            // }
+
+        }
+    }
+
+    for (int i = 0; i < num_chefs; i++) {
+        Chef* c = chefs[i];
+
+        if (pthread_mutex_trylock(&(c->protect)) == 0) {
+            pthread_cond_signal(&(c->cv_table));
+            pthread_mutex_unlock(&(c->protect));
+        }
+    }
+
+    for (int i = 0; i < num_tables; i++) {
+        pthread_join(tables[i]->tid, NULL);
+    }
+    for (int i = 0; i < num_chefs; i++) {
+        pthread_join(chefs[i]->tid, NULL);
+    }
+
     printf("Simulation Done.\n");
 
     for (int i = 0; i < num_chefs; i++) {

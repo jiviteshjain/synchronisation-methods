@@ -21,6 +21,10 @@ void* table_run(void* args) {
     while(true) {
         // OVERALL SERVING CYCLE
 
+        if (done) {
+            break;
+        }
+
         pthread_mutex_lock(&(self->protect));
         // just to protect state change from Foodies
         self->state = TABLE_ST_PREPARING;
@@ -29,6 +33,9 @@ void* table_run(void* args) {
         printf(ANSI_RED "TABLE %d WAITING FOR BIRYANI\n" ANSI_DEFAULT, self->id);
 
         while(true) {
+            if (done) {
+                break;
+            }
             // JUST GET A VESSEL
             int i = rand() % self->num_chefs;
             Chef* chef = self->chefs[i];
@@ -52,6 +59,9 @@ void* table_run(void* args) {
         // NOW WE HAVE A VESSEL
         
         while (true) {
+            if (done) {
+                break;
+            }
             // THIS IS THE SLOT GENERATION LOOP
             
             if (self->left_vessel_cap <= 0) { // NOBODY ELSE USES LEFT_VESSEL_CAPACITY
@@ -91,12 +101,15 @@ void* table_run(void* args) {
             }
         }
 
-        printf(ANSI_RED "TABLE %d SERVED ALL SLOTS\n" ANSI_DEFAULT, self->id);
+        printf(ANSI_RED "TABLE %d OUT OF BIRYANI\n" ANSI_DEFAULT, self->id);
     }
 }
 
 void ready_to_serve_table(Table* self) {
     while (true) {
+        if (done) {
+            break;
+        }
         if (self->left_slots <= 0) {
             break;
         } else {
@@ -104,7 +117,7 @@ void ready_to_serve_table(Table* self) {
         }
     }
 
-    self->left_slots = 0;
+    // self->left_slots = 0;
 
     self->state = TABLE_ST_INTERMEDIATE;
     // TODO: print for all students here
