@@ -1,6 +1,7 @@
 #include "main.h"
 #include "chef.h"
 #include "table.h"
+#include "foodie.h"
 
 void chef_init(Chef* c, int i) {
     c->id = i;
@@ -15,7 +16,7 @@ void* chef_run(void* args) {
 
     while (true) {
         self->vessel_cap = VESSEL_CAPACITY_OFFSET + rand() % VESSEL_CAPACITY_LIMIT;
-        
+
         self->cook_time = COOKING_TIME_OFFSET + rand() % COOKING_TIME_LIMIT;
         sleep(self->cook_time);
 

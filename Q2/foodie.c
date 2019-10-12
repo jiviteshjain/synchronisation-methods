@@ -3,12 +3,27 @@
 #include "chef.h"
 #include "foodie.h"
 
+void foodie_init(Foodie* f, int i, Table** tables, int num_tables) {
+    f->id = i;
+    // tid set by main
+
+    f->num_tables = num_tables;
+    f->tables = tables;
+}
+
 void* foodie_run(void* args) {
     Foodie* self = (Foodie*)args;
     
     self->arrival_time = FOODIE_DELAY_OFFSET + rand() % FOODIE_DELAY_LIMIT;
     sleep(self->arrival_time);
-    
+
+    wait_for_slot(self);
+    student_in_slot(self);
+
+    return NULL;
+}
+
+void wait_for_slot(Foodie* self) {
     while (true) {
         int i = rand() % self->num_tables;
         Table* table = self->tables[i];
@@ -35,5 +50,9 @@ void* foodie_run(void* args) {
         pthread_mutex_unlock(&(table->protect));
         break;
     }
+}
+
+void student_in_slot(Foodie* self) {
+    // TODO: print
     return;
 }

@@ -10,11 +10,11 @@ clean:
 sim.o: sim.c main.h
 	gcc $(CFLAGS) -c sim.c
 
-server.o: server.c server.h
+server.o: server.c server.h main.h
 	gcc $(CFLAGS) -c server.c
 
-rider.o: rider.c rider.h
+rider.o: rider.c rider.h main.h
 	gcc $(CFLAGS) -c rider.c
 
-cab.o: cab.c cab.h
+cab.o: cab.c cab.h main.h
 	gcc $(CFLAGS) -c cab.c

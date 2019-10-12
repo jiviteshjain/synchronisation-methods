@@ -1,0 +1,57 @@
+#include "main.h"
+#include "chef.h"
+#include "table.h"
+#include "foodie.h"
+
+int main(void) {
+    srand(time(0));
+
+    int num_chefs, num_tables, num_foodies;
+    printf("Enter number of chefs, tables and students: ");
+    scanf("%d %d %d", &num_chefs, &num_tables, &num_foodies);
+
+    Chef** chefs = (Chef**)malloc(sizeof(Chef*) * num_chefs);
+    Table** tables = (Table**)malloc(sizeof(Table*) * num_tables);
+    Foodie** foodies = (Foodie**)malloc(sizeof(Foodie*) * num_foodies);
+
+    printf("Running simulation.\n");
+
+    for (int i = 0; i < num_chefs; i++) {
+        chefs[i] = (Chef*)malloc(sizeof(Chef));
+        chef_init(chefs[i], i);
+
+        pthread_create(&(chefs[i]->tid), NULL, chef_run, (void*)chefs[i]);
+    }
+    for (int i = 0; i < num_tables; i++) {
+        tables[i] = (Table*)malloc(sizeof(Table));
+        table_init(tables[i], i, chefs, num_chefs);
+
+        pthread_create(&(tables[i]->tid), NULL, table_run, (void*)tables[i]);
+    }
+    for (int i = 0; i < num_foodies; i++) {
+        foodies[i] = (Foodie*)malloc(sizeof(Foodie));
+        foodie_init(foodies[i], i, tables, num_tables);
+
+        pthread_create(&(foodies[i]->tid), NULL, foodie_run, (void*)foodies[i]);
+    }
+
+    for (int i = 0; i < num_foodies; i++) {
+        pthread_join(foodies[i]->tid, NULL);
+    }
+
+    for (int i = 0; i < num_tables; i++) {
+        Table* t = tables[i];
+        
+        pthread_mutex_lock(&(t->protect));
+
+        if (t->state == TABLE_ST_SERVING) {
+            int n = t->total_slots - t->left_slots;
+            for (int j = 0; j < n; j++) {
+                // printf for each foodie in table
+            }
+        }
+
+        pthread_mutex_unlock(&(t->protect));
+    }
+    printf("Simulation Done.\n");
+}
