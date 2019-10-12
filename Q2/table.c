@@ -89,6 +89,7 @@ void* table_run(void* args) {
             // for (int k = 0; k < self->total_slots - self->left_slots; k++) {
             //     printf(ANSI_GREEN "STUDENT %d DONE\n" ANSI_DEFAULT, self->foodies[k]->id);
             // }
+            printf(ANSI_RED "TABLE %d OUT OF SLOTS\n" ANSI_DEFAULT, self->id);
         }
 
         printf(ANSI_RED "TABLE %d OUT OF BIRYANI\n" ANSI_DEFAULT, self->id);
