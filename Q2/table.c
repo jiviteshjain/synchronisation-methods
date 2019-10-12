@@ -74,24 +74,24 @@ void* table_run(void* args) {
 
             self->state = TABLE_ST_SERVING;
 
-            printf(ANSI_RED "TABLE %d READY TO SERVE %d SLOTS. VESSEL CAPACITY REDUCED TO %d\n", self->id, self->left_slots, self->left_vessel_cap);
+            printf(ANSI_RED "TABLE %d READY TO SERVE %d SLOTS. VESSEL CAPACITY REDUCED TO %d\n" ANSI_DEFAULT, self->id, self->left_slots, self->left_vessel_cap);
 
             ready_to_serve_table(self);
 
-            printf(ANSI_RED "TABLE %d NOW SERVING %d STUDENTS: " ANSI_DEFAULT, self->id, self->total_slots - self->left_slots);
-            for (int k = 0; k < self->total_slots - self->left_slots; k++) {
-                printf(ANSI_RED "%d " ANSI_DEFAULT, self->foodies[k]->id);
-            }
-            printf("\n");
+            // printf(ANSI_RED "TABLE %d NOW SERVING %d STUDENTS: " ANSI_DEFAULT, self->id, self->total_slots - self->left_slots);
+            // for (int k = 0; k < self->total_slots - self->left_slots; k++) {
+            //     printf(ANSI_RED "%d " ANSI_DEFAULT, self->foodies[k]->id);
+            // }
+            // printf("\n");
             
-            sleep(EATING_TIME);
+            // sleep(EATING_TIME);
 
-            for (int k = 0; k < self->total_slots - self->left_slots; k++) {
-                printf(ANSI_GREEN "STUDENT %d DONE\n" ANSI_DEFAULT, self->foodies[k]->id);
-            }
+            // for (int k = 0; k < self->total_slots - self->left_slots; k++) {
+            //     printf(ANSI_GREEN "STUDENT %d DONE\n" ANSI_DEFAULT, self->foodies[k]->id);
+            // }
         }
 
-        printf(ANSI_RED "TABLE %d SERVED ALL SLOTS\n" ANSI_DEFAULT, self->id);
+        printf(ANSI_RED "TABLE %d OUT OF BIRYANI\n" ANSI_DEFAULT, self->id);
     }
 }
 

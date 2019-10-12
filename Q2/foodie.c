@@ -47,7 +47,7 @@ void wait_for_slot(Foodie* self) {
         int n = table->total_slots - table->left_slots;
         table->foodies[n - 1] = self;
 
-        printf(ANSI_GREEN "STUDENT %d ASSIGNED SLOT ON TABLE %d\n", self->id, table->id);
+        printf(ANSI_GREEN "STUDENT %d ASSIGNED SLOT ON TABLE %d AND SERVED BIRYANI\nSTUDENT %d DONE\n" ANSI_DEFAULT, self->id, table->id, self->id);
 
         pthread_cond_signal(&(table->cv_foodie));
         pthread_mutex_unlock(&(table->protect));
