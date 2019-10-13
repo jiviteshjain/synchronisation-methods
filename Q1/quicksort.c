@@ -102,4 +102,14 @@ int main(void) {
     printf("%Lf times faster than multiprocess quicksort.\n", t_proc / t_normal);
     printf("%Lf times faster than multithread quicksort.\n\n", t_thread / t_normal);
     printf("Multithreaded quicksort was %Lf times faster than multiprocess quicksort.\n", t_proc / t_thread);
+
+    // Detach Shared Memory
+    if (shmdt(b) == -1) {
+        perror("shmdt");
+        exit(1);
+    }
+    if (shmctl(shm_id, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(1);
+    }
 }
